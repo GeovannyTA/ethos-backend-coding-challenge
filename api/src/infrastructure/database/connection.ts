@@ -1,11 +1,12 @@
 import pg from 'pg';
 
+// Configuración y conexión con la base de datos PostgreSQL (Supabase)
 export const pool = new pg.Pool({
-    user: 'postgres.lnqfxwbolbzstgdvehtn',
-    host: 'aws-1-us-east-2.pooler.supabase.com',
-    database: 'postgres',
-    password: 'Geotre283245', // deje el password hardcodeado para no tener que usar variables de entorno
-    port: 6543,
-    max: 10,
-    idleTimeoutMillis: 30000,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: Number(process.env.DB_PORT),
+    max: Number(process.env.DB_MAX),
+    idleTimeoutMillis: Number(process.env.DB_IDLE_TIMEOUT),
 });
