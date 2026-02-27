@@ -1,0 +1,10 @@
+export class Project {
+    constructor(
+        public  readonly id: string,
+        public name: string,
+        public description: string,
+        public userId: string,
+        public status: string,
+        public createdAt: Date,
+    ) {}
+}
