@@ -1,4 +1,4 @@
-import { User } from "../../domain/entities/User";
+import { User, UserResponse } from "../../domain/entities/User";
 import { UserRepository } from "../../domain/repositories/UserRepository";
 import { pool } from "./connection";
 
@@ -24,5 +24,11 @@ export class PostgresUserRepository implements UserRepository {
         const row = result.rows[0];
         // Retornar un nuevo usuario 
         return new User(row.id, row.email, row.password, row.first_name, row.last_name);
+    }
+
+    // Buscar todos los usuarios
+    async findAll(): Promise<UserResponse[]> {
+        const result = await pool.query('select * from users');
+        return result.rows.map(row => new UserResponse(row.id, row.email, row.first_name, row.last_name));
     }
 }

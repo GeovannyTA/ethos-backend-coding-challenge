@@ -1,6 +1,7 @@
 import { Project } from "../entities/Project";
 
 export interface ProjectRepository {
-    create(project: Project): Promise<void>;
+    create(project: Project): Promise<Project>;
+    findByName(name: string): Promise<Project | null>;
     findAll(): Promise<Project[]>;
 }

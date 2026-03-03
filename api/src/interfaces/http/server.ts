@@ -3,6 +3,8 @@ import { userRouter } from "./routes/userRoutes";
 import { PostgresUserRepository } from "../../infrastructure/database/PostgresUserRepository";
 import { authRouter } from "./routes/authRoutes";
 import { rateLimiter } from "./middleware/rateLimiter";
+import { projectRouter } from "./routes/projectRoutes";
+import { PostgresProjectRepository } from "../../infrastructure/database/PostgresProjectRepository";
 
 export class Server {
   private app: Elysia;
@@ -20,11 +22,13 @@ export class Server {
 
   private registerRoutes() {
     const userRepository = new PostgresUserRepository();
+    const projectRepository = new PostgresProjectRepository();
 
     this.app.group("/api/v1", (app) =>
       app
         .use(userRouter({ userRepository }))
-        .use(authRouter({ userRepository })),
+        .use(authRouter({ userRepository }))
+        .use(projectRouter({ projectRepository }))
     );
   }
 
