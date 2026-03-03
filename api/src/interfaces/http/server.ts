@@ -1,21 +1,22 @@
-import { Elysia} from "elysia";
+import { Elysia } from "elysia";
 import { userRouter } from "./routes/userRoutes";
 import { PostgresUserRepository } from "../../infrastructure/database/PostgresUserRepository";
 import { authRouter } from "./routes/authRoutes";
-
+import { rateLimiter } from "./middleware/rateLimiter";
 
 export class Server {
   private app: Elysia;
 
   constructor() {
     this.app = new Elysia();
-    
+    this.registerMiddlewares();
     this.registerRoutes();
   }
 
-  //   private registerMiddlewares() {
-  //     this.app.use(rateLimiter(100, 60_000)); // 100 requests por minuto
-  //   }
+  private registerMiddlewares() {
+    // Rate limiter de 5 peticiones por 60 segundos
+    this.app.use(rateLimiter(100, 60_000));
+  }
 
   private registerRoutes() {
     const userRepository = new PostgresUserRepository();
