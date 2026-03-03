@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { verifyToken } from "../../../infrastructure/auth/jwt";
 
 interface RateLimitEntry {
   count: number;
@@ -14,11 +15,12 @@ interface RateLimitEntry {
  */
 export function rateLimiter(maxRequests: number, windowMs: number) {
   const store = new Map<string, RateLimitEntry>();
+  console.log("Store: ", store);
 
   return new Elysia().onBeforeHandle(
     { as: "global" },
     async ({ request, set }) => {
-      const identifier = getIdentifier(request);
+      const identifier = await getIdentifier(request);
       const now = Date.now();
 
       let entry = store.get(identifier);
@@ -39,14 +41,26 @@ export function rateLimiter(maxRequests: number, windowMs: number) {
   );
 }
 
-function getIdentifier(request: Request): string {
+async function getIdentifier(request: Request): Promise<string> {
+  // Si hay token válido, usar userId
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    try {
+      const payload = await verifyToken(token) as { userId?: string };
+      if (payload?.userId) {
+        console.log("User ID: ", payload.userId);
+        return `user:${payload.userId}`;
+      }
+    } catch {
+      // Token inválido, continuar con IP
+    }
+  }
+
+  // Sin token o inválido: usar IP
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    return forwarded.split(",")[0].trim();
-  }
+  if (forwarded) return forwarded.split(",")[0].trim();
   const realIp = request.headers.get("x-real-ip");
-  if (realIp) {
-    return realIp.trim();
-  }
+  if (realIp) return realIp.trim();
   return "unknown";
 }
