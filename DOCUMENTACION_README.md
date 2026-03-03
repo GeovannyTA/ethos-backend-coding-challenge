@@ -139,14 +139,36 @@ ethos-backend-coding-challenge/
 │   │   │       ├── connection.ts
 │   │   │       ├── PostgresUserRepository.ts
 │   │   │       └── PostgresProjectRepository.ts
-│   │   └── interfaces/http/
-│   │       ├── server.ts
-│   │       ├── middleware/authMiddleware.ts, rateLimiter.ts
-│   │       └── routes/userRoutes.ts, authRoutes.ts, projectRoutes.ts
+│   │   ├── interfaces/http/
+│   │   │   ├── server.ts
+│   │   │   ├── middleware/authMiddleware.ts, rateLimiter.ts
+│   │   │   └── routes/userRoutes.ts, authRoutes.ts, projectRoutes.ts
+│   │   └── __tests__/    
+│   │       ├── AppError.test.ts
+│   │       ├── CreateUser.test.ts
+│   │       ├── CreateProject.test.ts
 │   ├── script.sql
 │   └── .env.example
 ├── README.md
 └── DOCUMENTACION_README.md
 ```
+
+---
+
+## Parte 4: Cómo ejecutar los tests
+### Ejecutar todos los tests
+
+```
+cd api
+bun test
+```
+
+### Estructura de los tests
+
+| Archivo | Tipo | Descripción |
+|---------|------|-------------|
+| `AppError.test.ts` | Unitario | Errores de dominio (NotFoundError, UnauthorizedError, etc.) |
+| `CreateUser.test.ts` | Unitario | Caso de uso CreateUser (validación de email duplicado) |
+| `CreateProject.test.ts` | Unitario | Caso de uso CreateProject |
 
 ---
