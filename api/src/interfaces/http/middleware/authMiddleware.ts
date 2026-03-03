@@ -1,4 +1,5 @@
 import { verifyToken } from "../../../infrastructure/auth/jwt";
+import { UnauthorizedError } from "../../../domain/errors/AppError";
 import { Elysia } from "elysia";
 
 export const authMiddleware = new Elysia().derive(
@@ -7,7 +8,7 @@ export const authMiddleware = new Elysia().derive(
     const authHeader = request.headers.get("authorization");
 
     if (!authHeader) {
-      throw new Error("Unauthorized");
+      throw new UnauthorizedError("Missing authorization header");
     }
 
     const token = authHeader.replace("Bearer ", "");
@@ -15,7 +16,7 @@ export const authMiddleware = new Elysia().derive(
       const payload = await verifyToken(token);
       return { user: payload as { userId: string } };
     } catch {
-      throw new Error("Invalid token");
+      throw new UnauthorizedError("Invalid token");
     }
   }
 );

@@ -1,4 +1,5 @@
 import { UserRepository } from "../../domain/repositories/UserRepository";
+import { NotFoundError, UnauthorizedError } from "../../domain/errors/AppError";
 import argon2 from "argon2";
 import { SignJWT } from "jose";
 
@@ -9,18 +10,16 @@ export class AuthenticateUser {
   async execute(email: string, password: string) {
     // Verificar si el usuario existe
     const user = await this.userRepo.findByEmail(email);
-    
-    // Si el usuario ya existe, lanzar un error
+
     if (!user) {
-      throw new Error("User not found");
+      throw new NotFoundError("User not found");
     }
 
     // Verificar si la contraseña es correcta
     const isPasswordCorrect = await argon2.verify(user.password, password);
 
-    // Si la contraseña es incorrecta, lanzar un error
     if (!isPasswordCorrect) {
-      throw new Error("Invalid password");
+      throw new UnauthorizedError("Invalid password");
     }
 
     // Codificar el secreto para generar el token

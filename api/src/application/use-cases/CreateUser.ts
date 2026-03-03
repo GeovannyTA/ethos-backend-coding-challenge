@@ -1,17 +1,16 @@
 import { User } from "../../domain/entities/User";
 import { UserRepository } from "../../domain/repositories/UserRepository";
+import { ConflictError } from "../../domain/errors/AppError";
 import argon2 from "argon2";
 
 export class CreateUser {
     constructor(private userRepo: UserRepository){}
 
     async execute(email: string, password: string, first_name: string, last_name: string): Promise<User> {
-        // Verificar si el usuario ya existe
         const existing = await this.userRepo.findByEmail(email);
 
-        // Si el usuario ya existe, lanzar un error
         if (existing) {
-            throw new Error("User already exists");
+            throw new ConflictError("User already exists");
         }
         
         // Hashear la contraseña
