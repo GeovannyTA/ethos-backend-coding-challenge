@@ -1,0 +1,66 @@
+import { User, UserResponse } from "../../domain/entities/User";
+import { UserRepository } from "../../domain/repositories/UserRepository";
+import { NotFoundError } from "../../domain/errors/AppError";
+import { pool } from "./connection";
+
+export class PostgresUserRepository implements UserRepository {
+    // Crear un usuario en la base de datos
+    async create(user: User): Promise<User> {
+        await pool.query(
+            'insert into users (email, password, first_name, last_name) values ($1, $2, $3, $4)',
+            [user.email, user.password, user.first_name, user.last_name]
+        )
+        return user;
+    }
+
+    // Buscar un usuario por su email, si no existe, retornar null
+    async findByEmail(email: string): Promise<User | null> {
+        const result = await pool.query(
+            'select * from users where email = $1',
+            [email]
+        )
+
+        if (result.rows.length === 0) return null;
+
+        const row = result.rows[0];
+        // Retornar un nuevo usuario 
+        return new User(row.id, row.email, row.password, row.first_name, row.last_name);
+    }
+
+    // Buscar un usuario por su ID, si no existe, retornar null
+    async findById(id: string): Promise<User | null> {
+        const result = await pool.query(
+            'select * from users where id = $1',
+            [id]
+        )
+        if (result.rows.length === 0) return null;
+        const row = result.rows[0];
+        return new User(row.id, row.email, row.password, row.first_name, row.last_name);
+    }
+
+    // Actualizar un usuario en la base de datos
+    async update(user: User): Promise<User> {
+        const result = await pool.query(
+            'update users set email = $1, password = $2, first_name = $3, last_name = $4 where id = $5',
+            [user.email, user.password, user.first_name, user.last_name, user.id]
+        )
+        if (result.rowCount === 0) throw new NotFoundError("User not found");
+        return user;
+    }
+
+    // Eliminar un usuario en la base de datos
+    async delete(id: string): Promise<User> {
+        const result = await pool.query(
+            'delete from users where id = $1',
+            [id]
+        )
+        
+        return new User(id, '', '', '', '');
+    }
+
+    // Buscar todos los usuarios
+    async findAll(): Promise<UserResponse[]> {
+        const result = await pool.query('select * from users');
+        return result.rows.map(row => new UserResponse(row.id, row.email, row.first_name, row.last_name));
+    }
+}
